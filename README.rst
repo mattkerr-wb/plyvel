@@ -1,25 +1,30 @@
 ======
-Plyvel
+plyvel
 ======
 
-.. image:: https://travis-ci.org/wbolster/plyvel.svg?branch=master
-    :target: https://travis-ci.org/wbolster/plyvel
-.. image:: https://github.com/liviaerxin/plyvel/actions/workflows/cibuildwheel.yml/badge.svg?branch=CI
-    :target: https://github.com/liviaerxin/plyvel/tree/CI
+Another fork that creates pre-compiled Python wheels for `plyvel`, using a GitHub Action, intended to be used by WB Games. Currently aligns with Python 3.12, with 3.14 in the future.
 
-**Plyvel** is a fast and feature-rich Python interface to LevelDB_.
+Creation of a release should be done through GitHub, including the new tag, of format 'v<version>'. Do not push tags directly from your local repository, otherwise it will miss upload of the source distribution.
 
-Plyvel has a rich feature set, high performance, and a friendly Pythonic API.
-See the documentation and project page for more information:
+.. image:: https://github.com/mattkerr-wb/plyvel/actions/workflows/cibuildwheel.yml/badge.svg?branch=CI
+    :target: https://github.com/mattkerr-wb/plyvel/tree/CI
 
-* Documentation_
-* `Project page`_
-* `PyPI page`_
+Usage
+------
+`pyproject.toml`:
 
-.. _Project page: https://github.com/wbolster/plyvel
-.. _Documentation: https://plyvel.readthedocs.io/
-.. _PyPI page: http://pypi.python.org/pypi/plyvel/
-.. _LevelDB: https://github.com/google/leveldb
+```toml
+[[project]]
+...
+dependencies = [
+...
+  "plyvel-wb==1.5.1",
+]
 
-Note that using a released version is recommended over a checkout from version
-control. See the installation docs for more information.
+[[tool.uv.sources]]
+...
+plyvel-wb = [
+  { marker = "platform_system == 'Darwin'", url = "https://github.com/mattkerr-wb/plyvel/releases/download/v1.5.1/plyvel_wb-1.5.1-cp312-cp312-macosx_11_0_arm64.whl" },
+  { marker = "platform_system == 'Linux'", url = "https://github.com/mattkerr-wb/plyvel/releases/download/v1.5.1/plyvel_wb-1.5.1-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl" },
+]
+```

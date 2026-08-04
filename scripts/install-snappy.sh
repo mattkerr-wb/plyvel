@@ -1,38 +1,17 @@
 #!/usr/bin/env bash
 set -ex
 
-SNAPPY_VERSION=1.1.9
+SNAPPY_VERSION=1.2.2
 SUDO=$(command -v sudo || true)
 SCRIPT="$( cd "$( dirname $0 )" && pwd )"
-PATCH_FILE=$SCRIPT/1.1.9-0001-fix-inlining-failure.patch # for snappy 1.1.9
-echo $PATCH_FILE
+
+echo "OS: $(uname)"
 
 # Check env
 if [[ "$(uname)" == "Darwin" ]]; then
-    ARCHS="x86_64"
-    case "${CIBW_ARCHS_MACOS:-auto}" in
-        "universal2")
-            ARCHS="x86_64 arm64"
-            ;;
-        "arm64")
-            ARCHS="arm64"
-            ;;
-        "x86_64")
-            ARCHS="x86_64"
-            ;;
-        "auto")
-            ;;
-        *)
-            echo "Unexpected arch: ${CIBW_ARCHS_MACOS}"
-            exit 1
-            ;;
-    esac
-    echo "building libsnappy for mac ${ARCHS}"
-    for arch in ${ARCHS}; do
-        export CFLAGS="-arch ${arch} ${CFLAGS:-}"
-        export CXXFLAGS="-arch ${arch} ${CXXFLAGS:-}"
-        export LDFLAGS="-arch ${arch} ${LDFLAGS:-}"
-    done
+    export CFLAGS="-arch arm64 ${CFLAGS:-}"
+    export CXXFLAGS="-arch arm64 ${CXXFLAGS:-}"
+    export LDFLAGS="-arch arm64 ${LDFLAGS:-}"
 fi
 
 # Prepare snappy source code
@@ -40,10 +19,6 @@ mkdir -p ~/opt/snappy
 cd ~/opt/snappy
 curl -sL https://codeload.github.com/google/snappy/tar.gz/${SNAPPY_VERSION} | tar xzf -
 cd ./snappy-*
-
-# Patch inline
-echo $PWD
-patch < $PATCH_FILE
 
 # Compile snappy
 
@@ -54,9 +29,14 @@ patch < $PATCH_FILE
 
 if [[ "$(uname)" == "Darwin" ]]; then
     INSTALL_NAME_DIR="/usr/local/lib"
+    $SUDO mkdir -p /usr/local/lib
+    $SUDO mkdir -p /usr/local/include
+    $SUDO chown runner:admin /usr/local/lib
+    $SUDO chown runner:admin /usr/local/include
 fi
 
 mkdir -p build && cd build
+
 cmake \
     -DCMAKE_BUILD_TYPE=Release \
     -DBUILD_SHARED_LIBS=ON \

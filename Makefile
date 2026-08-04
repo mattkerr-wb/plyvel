@@ -16,13 +16,7 @@ doc:
 	@echo
 
 clean:
-	python setup.py clean
-	$(RM) plyvel/_plyvel.cpp plyvel/_plyvel*.so
-	$(RM) -r testdb/
-	$(RM) -r doc/build/
-	$(RM) -r plyvel.egg-info/
-	find . -name '*.py[co]' -delete
-	find . -name __pycache__ -delete
+	git clean -fxq
 
 test: ext
 	python -m pytest
@@ -31,9 +25,8 @@ docker-build-env:
 	docker build -t plyvel-build .
 
 release: docker-build-env
-	CIBW_BUILD='cp3*-manylinux_x86_64' \
-	CIBW_SKIP='cp36-manylinux_x86_64' \
+	CIBW_BUILD='cp312*-manylinux_x86_64' \
 	CIBW_MANYLINUX_X86_64_IMAGE=plyvel-build \
 	CIBW_BEFORE_BUILD=scripts/cibuildwheel-before-build.sh \
 	CIBW_PLATFORM=linux \
-	cibuildwheel --output-dir dist
+	cibuildwheel --output-dir wheelhouse

@@ -31,7 +31,7 @@ ext_modules = [
 ]
 
 setup(
-    name='plyvel-ci',
+    name='plyvel-wb',
     description="Plyvel, a fast and feature-rich Python interface to LevelDB",
     long_description=get_file_contents('README.rst'),
     url="https://github.com/wbolster/plyvel",
@@ -51,7 +51,6 @@ setup(
         "Programming Language :: C++",
         "Programming Language :: Cython",
         "Programming Language :: Python",
-        "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 3",
         "Topic :: Database",
         "Topic :: Database :: Database Engines/Servers",
