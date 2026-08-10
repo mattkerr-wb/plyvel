@@ -15,36 +15,19 @@ jobs:
       matrix:
         include:
           - os: macos-15
-            name: macos-15-cp312
+            name: macos
             cibw:
               platform: macos
               arch: universal2
               build: "cp312-*_15_* cp314-*_15_*"
               skip: "cp314t-*"
-              python_version: "3.12"
-          - os: macos-15
-            name: macos-15-cp314
-            cibw:
-              platform: macos
-              arch: universal2
-              build: "cp314-*_15_*"
-              skip: "cp314t-*"
-              python_version: "3.14"
          - os: ubuntu-latest
-            name: manylinux-cp312
+            name: linux
             cibw:
+              platform: linux
               # auto = x86_64, usually WSL2 users
               arch: auto aarch64
-              build: "cp312-*"
-              python_version: "3.12"
-          - os: ubuntu-latest
-            name: manylinux
-            cibw:
-              # auto = x86_64, usually WSL2 users
-              arch: auto aarch64
-              build: "cp314-*"
-              skip: "cp314t-*"
-              python_version: "3.14"
+              build: "cp312-* cp314-*"
     env:
       CIBW_BUILD: "${{ matrix.cibw.build || '*' }}"
       CIBW_SKIP: "${{ matrix.cibw.skip || '' }}"
@@ -69,7 +52,6 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v7
         with:
-          python-version: "${{ matrix.cibw.platform_version || '' }}"
           cache: 'pip' # caching pip dependencies
 
       - name: Set up QEMU
