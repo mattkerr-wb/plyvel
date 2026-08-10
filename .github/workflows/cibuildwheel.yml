@@ -83,20 +83,12 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v7
         with:
-          name: ${{ matrix.os }}
+          archive: false
           path: ./wheelhouse/*.whl
-  merge:
-    runs-on: ubuntu-latest
-    needs: wheel
-    steps:
-      - name: Merge Artifacts
-        uses: actions/upload-artifact/merge@v4
-        with:
-          delete-merged: true
+
   release:
     name: Release to github
     # when we make a new "release" in GitHub, we don't need the sdist to be made again
-    needs: merge
     runs-on: ubuntu-latest
     permissions:
       contents: write # This line fixes the softprops action error

@@ -83,5 +83,5 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v7
         with:
-          name: ${{ matrix.os }}
+          archive: false
           path: ./wheelhouse/*.whl
