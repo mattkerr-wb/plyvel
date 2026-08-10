@@ -2,7 +2,8 @@
 
 all: ext cython setup
 
-setup:		
+setup:
+    clang -v
 	bash -c scripts/install-snappy.sh
 	bash -c scripts/install-leveldb.sh
 	uv venv --python 3.12 --clear

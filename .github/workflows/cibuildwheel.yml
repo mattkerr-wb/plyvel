@@ -24,20 +24,17 @@ jobs:
             name: macos
             cibw:
               platform: macos
-              arch: arm64
-              build: "cp312-*_15_* cp314-*_15_*"
-              skip: "cp314t-*"
-          - os: ubuntu-latest
+              arch: universal2
+              build: "cp312-* cp314-*"
+          - os: ubuntu-24.04
             name: linux
             cibw:
               platform: linux
               # auto = x86_64, usually WSL2 users
               arch: auto aarch64
               build: "cp312-* cp314-*"
-              skip: "cp314t-*"
     env:
       CIBW_BUILD: "${{ matrix.cibw.build || '*' }}"
-      CIBW_SKIP: "${{ matrix.cibw.skip || '' }}"
       CIBW_PLATFORM: "${{ matrix.cibw.platform || '' }}"
       # `CPLUS_INCLUDE_PATH` and `LIBRARY_PATH` for `setup.py` to link leveldb and snappy headers and libs in macOS
       CIBW_ENVIRONMENT_MACOS: >
@@ -54,14 +51,14 @@ jobs:
       - uses: actions/checkout@v7
 
       - name: Set up Python 3.12
-        if: matrix.cibw.build == 'cp312*-'
+        if: matrix.cibw.build == 'cp312-*'
         uses: actions/setup-python@v7
         with:
           python-version: 3.12
           cache: pip # caching pip dependencies
 
       - name: Set up Python 3.14
-        if: matrix.cibw.build == 'cp314*-'
+        if: matrix.cibw.build == 'cp314-*'
         uses: actions/setup-python@v7
         with:
           python-version: 3.14
