@@ -15,7 +15,7 @@ def get_file_contents(filename):
         return fp.read()
 
 # add "-fno-rtti" fix `Symbol not found: __ZTIN7leveldb10ComparatorE` when using `leveldb 1.23`. Because `leveldb 1.23` compiled without RTTI(run time type info), if we use "-frtti", `U typeinfo for leveldb::Comparator` will not be found in `leveldb.a` or `leveldb.so`
-extra_compile_args = ['-Wall', '-g', '-x', 'c++', '-std=c++11', '-fno-rtti']
+extra_compile_args = ['-Wall', '-g', '-std=c++11', '-fno-rtti',]
 
 if platform.system() == "Darwin":
     extra_compile_args += ["-stdlib=libc++"]
@@ -33,7 +33,7 @@ ext_modules = [
 setup(
     name='plyvel-wb',
     description="Plyvel, a fast and feature-rich Python interface to LevelDB",
-    long_description=get_file_contents('README.rst'),
+    long_description=get_file_contents('README.md'),
     url="https://github.com/wbolster/plyvel",
     version=__version__,  # noqa: F821
     author="Wouter Bolsterlee",
@@ -46,11 +46,11 @@ setup(
         "Intended Audience :: Developers",
         "Intended Audience :: Information Technology",
         "Intended Audience :: Science/Research",
-        "License :: OSI Approved :: BSD License",
         "Operating System :: POSIX",
         "Programming Language :: C++",
         "Programming Language :: Cython",
         "Programming Language :: Python",
+        "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 3",
         "Topic :: Database",
         "Topic :: Database :: Database Engines/Servers",

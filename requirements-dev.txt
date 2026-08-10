@@ -1,5 +1,15 @@
 -r requirements-test.txt
 cibuildwheel
-Cython >= 0.17
+Cython
+humanize
+packaging
+bashlex
+dependency_groups
+bracex
+build
+pyproject-hooks
+filelock
+certifi
+platformdirs
 sphinx
 tox

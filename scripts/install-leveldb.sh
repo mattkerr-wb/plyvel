@@ -11,14 +11,15 @@ if [[ "$(uname)" == "Darwin" ]]; then
     export CFLAGS="-arch arm64 ${CFLAGS:-}"
     export CXXFLAGS="-arch arm64 ${CXXFLAGS:-}"
     export LDFLAGS="-arch arm64 ${LDFLAGS:-}"
-    export C_INCLUDE_PATH=~/opt/local/include # where find snappy header files
-    export CPLUS_INCLUDE_PATH=~/opt/local/include # where find snappy header files
-    export LIBRARY_PATH=~/opt/local/lib # where find snappy library
+    export MACOSX_DEPLOYMENT_TARGET=15
+    export C_INCLUDE_PATH=/usr/local/include # where find snappy header files
+    export CPLUS_INCLUDE_PATH=/usr/local/include # where find snappy header files
+    export LIBRARY_PATH=/usr/local/lib # where find snappy library
 fi
 
 # Prepare leveldb source code
-mkdir -p ~/opt/leveldb
-cd ~/opt/leveldb
+mkdir -p leveldb
+cd leveldb
 curl -sL leveldb.tar.gz https://codeload.github.com/google/leveldb/tar.gz/${LEVELDB_VERSION} | tar xzf -
 cd leveldb-*
 
@@ -27,10 +28,6 @@ cd leveldb-*
 # `CMAKE_INSTALL_NAME_DIR` and `CMAKE_SKIP_INSTALL_RPATH` only have effect for MacOS
 if [[ "$(uname)" == "Darwin" ]]; then
     INSTALL_NAME_DIR="/usr/local/lib"
-    $SUDO mkdir -p /usr/local/lib
-    $SUDO mkdir -p /usr/local/include
-    $SUDO chown runner:admin /usr/local/lib
-    $SUDO chown runner:admin /usr/local/include
 fi
 
 mkdir -p build && cd build
@@ -45,7 +42,7 @@ cmake \
     -DLEVELDB_BUILD_BENCHMARKS=OFF \
     ..
 
-cmake --build . --target install
+$SUDO cmake --build . --target install
 
 if [[ "$(uname)" == "Linux" ]]; then
     which ldconfig && ldconfig || true

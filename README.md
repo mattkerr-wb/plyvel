@@ -5,9 +5,16 @@ Another fork that creates pre-compiled Python wheels for `plyvel`, using a GitHu
 
 Creation of a release should be done through GitHub, including the new tag, of format 'v<version>'. Do not push tags directly from your local repository, otherwise it will miss upload of the source distribution.
 
+Build
+------
+```bash
+make release
+make
+```
+
 Usage
 ------
-In `pyproject.toml`:
+Edit in `pyproject.toml`:
 
 ```toml
 [[project]]

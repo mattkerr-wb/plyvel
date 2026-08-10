@@ -12,13 +12,14 @@ if [[ "$(uname)" == "Darwin" ]]; then
     export CFLAGS="-arch arm64 ${CFLAGS:-}"
     export CXXFLAGS="-arch arm64 ${CXXFLAGS:-}"
     export LDFLAGS="-arch arm64 ${LDFLAGS:-}"
+    export MACOSX_DEPLOYMENT_TARGET=15
 fi
 
 # Prepare snappy source code
-mkdir -p ~/opt/snappy
-cd ~/opt/snappy
+mkdir -p snappy
+cd snappy
 curl -sL https://codeload.github.com/google/snappy/tar.gz/${SNAPPY_VERSION} | tar xzf -
-cd ./snappy-*
+cd snappy-*
 
 # Compile snappy
 
@@ -29,10 +30,6 @@ cd ./snappy-*
 
 if [[ "$(uname)" == "Darwin" ]]; then
     INSTALL_NAME_DIR="/usr/local/lib"
-    $SUDO mkdir -p /usr/local/lib
-    $SUDO mkdir -p /usr/local/include
-    $SUDO chown runner:admin /usr/local/lib
-    $SUDO chown runner:admin /usr/local/include
 fi
 
 mkdir -p build && cd build
@@ -47,7 +44,7 @@ cmake \
     -DSNAPPY_BUILD_TESTS=OFF \
     ..
 
-cmake --build . --target install
+$SUDO cmake --build . --target install
 
 if [[ "$(uname)" == "Linux" ]]; then
     which ldconfig && ldconfig || true
