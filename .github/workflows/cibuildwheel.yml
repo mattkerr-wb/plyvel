@@ -24,7 +24,7 @@ jobs:
             name: macos
             cibw:
               platform: macos
-              arch: universal2
+              arch: arm64
               build: "cp312-*_15_* cp314-*_15_*"
               skip: "cp314t-*"
           - os: ubuntu-latest
