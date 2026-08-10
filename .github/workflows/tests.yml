@@ -15,18 +15,40 @@ jobs:
       matrix:
         include:
           - os: macos-15
-            name: darwin
+            name: macos-15-cp312
             cibw:
-              arch: arm64
-              build: "cp312-*"
-          - os: ubuntu-24.04
-            name: manylinux
+              platform: macos
+              arch: universal2
+              build: "cp312-*_15_* cp314-*_15_*"
+              skip: "cp314t-*"
+              python_version: "3.12"
+          - os: macos-15
+            name: macos-15-cp314
+            cibw:
+              platform: macos
+              arch: universal2
+              build: "cp314-*_15_*"
+              skip: "cp314t-*"
+              python_version: "3.14"
+         - os: ubuntu-latest
+            name: manylinux-cp312
             cibw:
               # auto = x86_64, usually WSL2 users
               arch: auto aarch64
               build: "cp312-*"
+              python_version: "3.12"
+          - os: ubuntu-latest
+            name: manylinux
+            cibw:
+              # auto = x86_64, usually WSL2 users
+              arch: auto aarch64
+              build: "cp314-*"
+              skip: "cp314t-*"
+              python_version: "3.14"
     env:
       CIBW_BUILD: "${{ matrix.cibw.build || '*' }}"
+      CIBW_SKIP: "${{ matrix.cibw.skip || '' }}"
+      CIBW_PLATFORM: "${{ matrix.cibw.platform || '' }}"
       # `CPLUS_INCLUDE_PATH` and `LIBRARY_PATH` for `setup.py` to link leveldb and snappy headers and libs in macOS
       CIBW_ENVIRONMENT_MACOS: >
         C_INCLUDE_PATH="/usr/local/include:$C_INCLUDE_PATH"
@@ -47,7 +69,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v7
         with:
-          python-version: 3.12
+          python-version: "${{ matrix.cibw.platform_version || '' }}"
           cache: 'pip' # caching pip dependencies
 
       - name: Set up QEMU

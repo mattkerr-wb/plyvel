@@ -5,12 +5,28 @@ Another fork that creates pre-compiled Python wheels for `plyvel`, using a GitHu
 
 Creation of a release should be done through GitHub, including the new tag, of format 'v<version>'. Do not push tags directly from your local repository, otherwise it will miss upload of the source distribution.
 
-Build
+
+Setup
 ------
 ```bash
-make release
-make
+make setup
+source .venv/bin/activate
 ```
+
+Build
+------
+The build relies on `pypa/cibuildwheel` to target multiple versions of Python and different target platforms. Currently, it builds macOS 15 platform target as well as many/musl linux. Python versions 3.12 and 3.14 are also targeted for each of those (but not 3.14t).
+
+macOS:
+```bash
+make release-macos
+```
+Linux (manylinux,muslinux) via Docker:
+```bash
+make release
+```
+
+Files are output to `wheelhouse/`
 
 Usage
 ------
