@@ -9,7 +9,7 @@ on:
 
 jobs:
   wheel:
-    name: Build ${{ matrix.os }}-${{ matrix.cibw.arch }} wheel
+    name: Build ${{ matrix.cibw.platform }} wheels
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -41,6 +41,7 @@ jobs:
       CIBW_REPAIR_WHEEL_COMMAND_MACOS: "delocate-listdeps {wheel} && delocate-wheel -w {dest_dir} {wheel} -v"
       CIBW_TEST_REQUIRES: "pytest"
       CIBW_TEST_COMMAND: "pytest -v {package}/test"
+      MACOSX_DEPLOYMENT_TARGET: "15.0"
     steps:
       - uses: actions/checkout@v7
 
