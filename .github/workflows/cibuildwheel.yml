@@ -21,14 +21,14 @@ jobs:
       matrix:
         include:
           - os: macos-15
-            name: macos-arm
+            name: macos
             cibw:
               platform: macos
               arch: universal2
-              build: "cp312-* cp314-*"
+              build: "cp312-*_15_* cp314-*_15_*"
               skip: "cp314t-*"
           - os: ubuntu-latest
-            name: manylinux
+            name: linux
             cibw:
               platform: linux
               # auto = x86_64, usually WSL2 users
