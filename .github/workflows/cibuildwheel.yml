@@ -13,7 +13,7 @@ on:
 
 jobs:
   wheel:
-    name: Build ${{ matrix.os }}-${{ matrix.cibw.arch }} wheel
+    name: Build ${{ matrix.name }} wheels
     runs-on: ${{ matrix.os }}
     permissions:
       contents: write # This line fixes the softprops action error

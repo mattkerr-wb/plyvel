@@ -9,7 +9,7 @@ on:
 
 jobs:
   wheel:
-    name: Build ${{ matrix.cibw.platform }} wheels
+    name: Build ${{ matrix.name }} wheels
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
