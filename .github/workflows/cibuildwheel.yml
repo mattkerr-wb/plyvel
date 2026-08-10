@@ -26,12 +26,14 @@ jobs:
               platform: macos
               arch: universal2
               build: "cp312-* cp314-*"
+              version: 15.0
           - os: macos-26
             name: macos-26
             cibw:
               platform: macos
               arch: universal2
               build: "cp312-* cp314-*"
+              version: 26.0
           - os: ubuntu-24.04
             name: linux
             cibw:
@@ -39,6 +41,7 @@ jobs:
               # auto = x86_64, usually WSL2 users
               arch: auto aarch64
               build: "cp312-* cp314-*"
+              version: 24.04
     env:
       CIBW_BUILD: "${{ matrix.cibw.build || '*' }}"
       CIBW_PLATFORM: "${{ matrix.cibw.platform || '' }}"
@@ -53,7 +56,7 @@ jobs:
       CIBW_REPAIR_WHEEL_COMMAND_MACOS: "delocate-listdeps {wheel} && delocate-wheel -w {dest_dir} {wheel} -v"
       CIBW_TEST_REQUIRES: "pytest"
       CIBW_TEST_COMMAND: "pytest -v {package}/test"
-      MACOSX_DEPLOYMENT_TARGET: "15.0"
+      MACOSX_DEPLOYMENT_TARGET: "${{ matrix.cibw.version }}"
     steps:
       - uses: actions/checkout@v7
 
