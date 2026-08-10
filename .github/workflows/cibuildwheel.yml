@@ -21,7 +21,13 @@ jobs:
       matrix:
         include:
           - os: macos-15
-            name: macos
+            name: macos-15
+            cibw:
+              platform: macos
+              arch: universal2
+              build: "cp312-* cp314-*"
+          - os: macos-26
+            name: macos-26
             cibw:
               platform: macos
               arch: universal2
@@ -83,12 +89,22 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v7
         with:
-          archive: false
+          name: "${{ matrix.name }}"
           path: ./wheelhouse/*.whl
+
+  merge:
+    runs-on: ubuntu-latest
+    needs: wheel
+    steps:
+      - name: Merge Artifacts
+        uses: actions/upload-artifact/merge@v4
+        with:
+          delete-merged: true
 
   release:
     name: Release to github
     # when we make a new "release" in GitHub, we don't need the sdist to be made again
+    needs: merge
     runs-on: ubuntu-latest
     permissions:
       contents: write # This line fixes the softprops action error
@@ -98,8 +114,8 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           name: merged-artifacts
-          path: dist
+          path: wheelhouse
       - uses: softprops/action-gh-release@v3
         if: startsWith(github.ref, 'refs/tags/v')
         with:
-          files: dist/*
+          files: wheelhouse/*
