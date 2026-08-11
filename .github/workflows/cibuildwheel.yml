@@ -5,7 +5,7 @@ on:
   push:
     tags:
       - "v*"
-    # branches: [CI]
+    branches: [CI]
   # pull_request:
   #   branches: [main]
   # Allows you to run this workflow manually from the Actions tab
@@ -41,7 +41,6 @@ jobs:
               # auto = x86_64, usually WSL2 users
               arch: auto aarch64
               build: "cp311-* cp312-* cp314-*"
-              version: 24.04
     env:
       CIBW_BUILD: "${{ matrix.cibw.build || '*' }}"
       CIBW_PLATFORM: "${{ matrix.cibw.platform || '' }}"
@@ -50,36 +49,58 @@ jobs:
         C_INCLUDE_PATH="/usr/local/include:$C_INCLUDE_PATH"
         CPLUS_INCLUDE_PATH="/usr/local/include:$CPLUS_INCLUDE_PATH"
         LIBRARY_PATH="/usr/local/lib:$LIBRARY_PATH"
-      CIBW_BEFORE_ALL_LINUX: "gcc -v && bash scripts/install-snappy.sh && bash scripts/install-leveldb.sh"
-      CIBW_BEFORE_ALL_MACOS: "clang -v && bash scripts/install-snappy.sh && bash scripts/install-leveldb.sh"
+      CIBW_BEFORE_ALL_LINUX:  "gcc -v \
+                              && bash scripts/install-snappy.sh \
+                              && bash scripts/install-leveldb.sh"
+      CIBW_BEFORE_ALL_MACOS:  "clang -v \
+                              && bash scripts/install-snappy.sh \
+                              && bash scripts/install-leveldb.sh"
       CIBW_REPAIR_WHEEL_COMMAND_LINUX: "auditwheel repair --lib-sdir . -w {dest_dir} {wheel}"
       CIBW_REPAIR_WHEEL_COMMAND_MACOS: "delocate-listdeps {wheel} && delocate-wheel -w {dest_dir} {wheel} -v"
       CIBW_TEST_REQUIRES: "pytest"
       CIBW_TEST_COMMAND: "pytest -v {package}/test"
       MACOSX_DEPLOYMENT_TARGET: "${{ matrix.cibw.version }}"
+      CIBW_CACHE_PATH: "${{ runner.temp }}/cibw-cache"
     steps:
       - uses: actions/checkout@v7
-
-      - name: Set up Python 3.11
-        if: matrix.cibw.build == 'cp311*-'
-        uses: actions/setup-python@v7
         with:
+          persist-credentials: false
+
+      - name: Install uv with Python 311
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        if: matrix.cibw.build == 'cp311-*'
+        with:
+          version: 0.11.8
           python-version: 3.11
-          cache: pip # caching pip dependencies
+          activate-environment: true
+          enable-cache: true
+          cache-suffix: cp311
+          cache-python: true
+          download-from-astral-mirror: false
 
-      - name: Set up Python 3.12
+      - name: Install uv with Python 312
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
         if: matrix.cibw.build == 'cp312-*'
-        uses: actions/setup-python@v7
         with:
+          version: 0.11.8
           python-version: 3.12
-          cache: pip # caching pip dependencies
+          activate-environment: true
+          enable-cache: true
+          cache-suffix: cp312
+          cache-python: true
+          download-from-astral-mirror: false
 
-      - name: Set up Python 3.14
+      - name: Install uv with Python 314
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
         if: matrix.cibw.build == 'cp314-*'
-        uses: actions/setup-python@v7
         with:
+          version: 0.11.8
           python-version: 3.14
-          cache: pip # caching pip dependencies
+          activate-environment: true
+          enable-cache: true
+          cache-suffix: cp314
+          cache-python: true
+          download-from-astral-mirror: false
 
       - name: Set up QEMU
         if: runner.os == 'Linux'
@@ -87,34 +108,26 @@ jobs:
         with:
           platforms: all
 
-      - name: Install cibuildwheel
-        run: |
-          pip install -U setuptools pip wheel
-          pip install -U cibuildwheel
+      - uses: actions/cache@v5
+        with:
+          path: ${{ runner.temp }}/cibw-cache
+          key: cibw-${{ runner.os }}-${{ matrix.cibw.build}}-${{ hashFiles('pyproject.toml') }}
+          restore-keys: |
+            cibw-${{ runner.os }}-${{ matrix.cibw.build }}
 
-      - name: Run cibuildwheel
-        run: |
-          python -m cibuildwheel --output-dir wheelhouse
+      - uses: pypa/cibuildwheel@v4.2.0
+        with:
+          output-dir: wheelhouse
 
       - name: Upload artifact
         uses: actions/upload-artifact@v7
         with:
-          name: "${{ matrix.name }}"
+          name: cibw-wheels-${{ matrix.name }}
           path: ./wheelhouse/*.whl
-
-  merge:
-    runs-on: ubuntu-latest
-    needs: wheel
-    steps:
-      - name: Merge Artifacts
-        uses: actions/upload-artifact/merge@v4
-        with:
-          delete-merged: true
 
   release:
     name: Release to github
     # when we make a new "release" in GitHub, we don't need the sdist to be made again
-    needs: merge
     runs-on: ubuntu-latest
     permissions:
       contents: write # This line fixes the softprops action error
@@ -123,9 +136,35 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v8
         with:
-          name: merged-artifacts
-          path: wheelhouse
+          path: dist
+          merge-multiple: true
       - uses: softprops/action-gh-release@v3
         if: startsWith(github.ref, 'refs/tags/v')
         with:
-          files: wheelhouse/*
+          files: |
+            dist/*
+            wheelhouse/*
+
+# TODO: when PyPI is onboarded
+#  pypi:
+#    name: Release to PyPi
+#    needs: merge
+#    runs-on: ubuntu-latest
+#    environment:
+#      name: pypi
+#      url: https://pypi.org/p/plyvel-wb
+#    permissions:
+#      id-token: write
+#    if: github.event_name == 'release' && github.event.action == 'published'
+#    steps:
+#      - uses: actions/download-artifact@v5
+#        with:
+#          # unpacks all CIBW artifacts into dist/
+#          pattern: merged-artifacts
+#          path: dist
+#          merge-multiple: true
+#      - uses: pypa/gh-action-pypi-publish@release/v1
+#        with:
+#          attestations: true
+#          print-hash: true
+#          # skip-existing: true
