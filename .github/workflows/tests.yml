@@ -19,14 +19,14 @@ jobs:
             cibw:
               platform: macos
               arch: universal2
-              build: "cp312-* cp314-*"
+              build: "cp311-* cp312-* cp314-*"
               version: 15.0
           - os: macos-26
             name: macos-26
             cibw:
               platform: macos
               arch: universal2
-              build: "cp312-* cp314-*"
+              build: "cp311-* cp312-* cp314-*"
               version: 26.0
           - os: ubuntu-24.04
             name: linux
@@ -34,7 +34,7 @@ jobs:
               platform: linux
               # auto = x86_64, usually WSL2 users
               arch: auto aarch64
-              build: "cp312-* cp314-*"
+              build: "cp311-* cp312-* cp314-*"
               version: 24.04
     env:
       CIBW_BUILD: "${{ matrix.cibw.build || '*' }}"
@@ -53,6 +53,13 @@ jobs:
       MACOSX_DEPLOYMENT_TARGET: "${{ matrix.cibw.version }}"
     steps:
       - uses: actions/checkout@v7
+
+      - name: Set up Python 3.11
+        if: matrix.cibw.build == 'cp311*-'
+        uses: actions/setup-python@v7
+        with:
+          python-version: 3.11
+          cache: pip # caching pip dependencies
 
       - name: Set up Python 3.12
         if: matrix.cibw.build == 'cp312*-'
